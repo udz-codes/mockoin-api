@@ -15,13 +15,19 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    funds: {
+        type: Number,
+        default: 30000
+    },
+    currency: {
+        type: String,
+        length: 3,
+        default: 'INR'
+    },
     date: {
         type: Date,
         default: Date.now
     }
-
-    // Add more fields here
-    
 })
 
 module.exports = mongoose.model('User', UserSchema);

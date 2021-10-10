@@ -17,8 +17,6 @@ const registerValidation = (data) => {
         
         date: Joi.date()
             .default(Date.now),
-
-        // Update further is any fields added to UserModel.js
     })
 
     return schema.validate(data)
@@ -26,6 +24,7 @@ const registerValidation = (data) => {
 
 const loginValidation = (data) => {
     const schema = Joi.object({
+        
         email: Joi.string()
             .email()
             .required(),

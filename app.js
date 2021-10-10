@@ -12,7 +12,7 @@ const privateRoutes = require('./routes/privateRoutes')
 
 // Middlewares
 app.use(express.json());
-// -> Route Middlewares
+// - Route Middlewares
 app.use('/', homeRoutes);
 app.use('/api/private', privateRoutes);
 app.use('/api/user', authRoutes);
