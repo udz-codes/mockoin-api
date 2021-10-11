@@ -7,15 +7,15 @@ require('dotenv/config'); // Environment variables
 // Route imports
 const homeRoutes = require('./routes/home')
 const authRoutes = require('./routes/auth')
-const privateRoutes = require('./routes/privateRoutes')
+const transactionRoutes = require('./routes/transactions')
 
 
 // Middlewares
 app.use(express.json());
 // - Route Middlewares
 app.use('/', homeRoutes);
-app.use('/api/private', privateRoutes);
 app.use('/api/user', authRoutes);
+app.use('/api/transactions', transactionRoutes)
 
 
 // Connect to Database

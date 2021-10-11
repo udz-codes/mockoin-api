@@ -9,7 +9,7 @@ const TransactionSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    amount: {
+    inr: {
         type: Number,
         required: true
     },
@@ -17,8 +17,8 @@ const TransactionSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    quanity: {
-        type: Number,
+    crypto_value: {
+        type: String,
         required: true
     },
     created_at: {
