@@ -4,16 +4,16 @@
   "description": "Backend application for mockoin clients",
   "main": "app.js",
   "scripts": {
-    "dev": "nodemon app.js",
+    "dev": "nodemon ./app.js",
     "start": "node app.js"
   },
   "author": "@udz-codes",
   "license": "ISC",
   "devDependencies": {
-    "dotenv": "^10.0.0",
     "nodemon": "^2.0.13"
   },
   "dependencies": {
+    "dotenv": "^10.0.0",
     "@hapi/joi": "^17.1.1",
     "bcryptjs": "^2.4.3",
     "express": "^4.17.1",
