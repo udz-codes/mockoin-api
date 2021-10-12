@@ -7,14 +7,15 @@ const InvestmentSchema = new mongoose.Schema({
     },
     crypto_id: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
-    quanity: {
+    total_amount: {
         type: Number,
         required: true
     },
-    price_at: {
-        type: Number,
+    total_quantity: {
+        type: String,
         required: true
     },
     created_at: {
