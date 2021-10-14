@@ -10,7 +10,7 @@ const TransactionSchema = new mongoose.Schema({
         required: true,
     },
     inr: {
-        type: Number,
+        type: String,
         required: true
     },
     crypto_id: {

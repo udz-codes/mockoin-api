@@ -5,20 +5,54 @@ const User = require('../models/UserModel');
 const Transaction = require('../models/TransactionModel');
 
 
+// Read all investments
+router.get('/', authenticateUser, async (req, res) => {
+    
+    try {
+        const investments = await Investment.find({
+            user_id: req.user,
+        });
+        return res.send(investments)
+    } catch (error) {
+        return res.send({message: "Encountered an error while fetching investments"})
+    }
+});
+
+
+// Read a specific investment with crypto_id
+router.get('/:crypto_id', authenticateUser, async (req, res) => {
+    
+    try {
+        const investment = await Investment.findOne({
+            user_id: req.user,
+            crypto_id: req.params.crypto_id
+        });
+        
+        if (investment) return res.status(200).send(investment);
+        else return res.status(400).send({message: "Investment not found"});
+
+    } catch (error) {
+        return res.send({message: "Encountered an error while fetching the investment"})
+    }
+});
+
+
 // Create a new investment
-router.post('/', authenticateUser, async (req, res) => {
+router.post('/buy', authenticateUser, async (req, res) => {
 
-    // EXAMPLE BODY OBJECT {
-    //     crypto_id: "BTC",
-    //     inr: "100",
-    //     quantity: "0.000028"
-    // }
+    // Check if user has balance to invest in thsi currency
+    const user = await User.findOne({_id: req.user._id})
+    if(user && user.funds < req.body.inr) return res.status(400).send({
+        message: "Insufficient balance"
+    })
 
+    // Find if user has invested in save crypto before
     const investment = await Investment.findOne({
         user_id: req.user._id,
         crypto_id: req.body.crypto_id
     })
 
+    // Creating transaction for later use
     const transaction  = Transaction({
         user_id: req.user._id,
         action_type: "BUY",
@@ -27,11 +61,14 @@ router.post('/', authenticateUser, async (req, res) => {
         crypto_value: req.body.quantity
     })
 
+    // If user has invested already in the crypto, quantity of crypto and amount invested will be incremented 
     if (investment) {
-        const new_quantity = parseFloat(investment.total_quantity) + parseFloat(req.body.quantity);
-        const new_amount = investment.total_amount + req.body.inr;
-        console.log(new_amount)
+        const new_quantity = parseFloat(investment.total_quantity) + parseFloat(req.body.quantity);     // Old quantity + quantity in request
+        const new_amount = parseFloat(investment.total_amount) + parseFloat(req.body.inr);      // Old amount invested + amount invested in current request
+        
         try {
+
+            // Update investment
             await Investment.updateOne({
                 user_id: req.user._id,
                 crypto_id: req.body.crypto_id
@@ -40,26 +77,30 @@ router.post('/', authenticateUser, async (req, res) => {
                 total_amount: new_amount
             })
 
-            const user = await User.findOne({_id: req.user._id})
-
-            if(user) {
-                const newFunds = user.funds - req.body.inr;
-                await User.updateOne({_id: req.user._id}, {
-                    funds: newFunds
-                })
-            }
+            // Subtract invested money from user's account
+            const newFunds = parseFloat(user.funds) - parseFloat(req.body.inr);
+            await User.updateOne({_id: req.user._id}, {
+                funds: newFunds
+            });
             
+            // Saving the transaction
             transaction.save()
 
-            res.send("Investment updated")
-
+            return res.status(200).send({
+                message: "Investment updated"
+            })
         } catch (error) {
-            res.send({
+            return res.status(400).send({
                 message: error
             })
         }
 
-    } else {
+    }
+    
+    // If user has not invested already in the crypto, new investment will be created
+    else {
+
+        // Creating new investment
         const newInvestment = Investment({
             user_id: req.user._id,
             crypto_id: req.body.crypto_id,
@@ -68,44 +109,100 @@ router.post('/', authenticateUser, async (req, res) => {
         })
 
         try {
+
+            // Save new investment
             await newInvestment.save();
             
-            const user = await User.findOne({_id: req.user._id})
+            // Updating user balance
+            const newFunds = parseFloat(user.funds) - parseFloat(req.body.inr);
+            await User.updateOne({_id: req.user._id}, {
+                funds: newFunds
+            })
 
-            if(user) {
-                const newFunds = user.funds - req.body.inr;
-                await User.updateOne({_id: req.user._id}, {
-                    funds: newFunds
-                })
-            }
-
+            // Saving transaction
             transaction.save()
             
-            res.send("Investment added")
+            return res.status(200).send({
+                message: "Investment created"
+            })
         } catch (error) {
-            res.send("Investment creation error")
+            return res.status(400).send({message: error})
         }
     }
 });
 
 
-// Read all investments
-router.get('/', authenticateUser, async (req, res) => {
-    
-    res.send("Get all investments")
-});
+// Selling full or part of investment
+router.post('/sell', authenticateUser, async (req, res) => {
 
+    // User will send
+    // {
+    //     "crypto_id": "ETH"
+    //     "quantity": "0.000028",
+    //     "investment": 100,
+    //     "return": -10
+    // }
 
-// Read a specific investment with crypto_id
-router.get('/:crypto_id', authenticateUser, async (req, res) => {
-    
-    res.send(`Get single investment with id: ${req.params.crypto_id}`)
-});
+    // Find if user has invested in save crypto before
+    const investment = await Investment.findOne({
+        user_id: req.user._id,
+        crypto_id: req.body.crypto_id
+    })
 
+    if(!investment) return res.status(400).send({
+        message: "Investment not found"
+    })
 
-// Delete an investment
-router.post('/:crypto_id', authenticateUser, async (req, res) => {
-    res.send(`Delete an investment with id: ${req.params.crypto_id}`)
+    if(parseFloat(investment.total_amount) < parseFloat(req.body.investment)) return res.status(400).send({
+        message: "Sale amount is more than invested amount"
+    })
+
+    if(parseFloat(investment.total_quantity) < parseFloat(req.body.quantity)) return res.status(400).send({
+        message: "Cannot sell more currency than investment"
+    })
+
+    const transaction  = Transaction({
+        user_id: req.user._id,
+        action_type: "SELL",
+        inr: parseFloat(req.body.investment) + parseFloat(req.body.return),
+        crypto_id: req.body.crypto_id,
+        crypto_value: req.body.quantity
+    })
+
+    const newTotalAmount = parseFloat(investment.total_amount) - parseFloat(req.body.investment);
+    const newTotalQuantity = parseFloat(investment.total_quantity) - parseFloat(req.body.quantity);
+
+    // If investment is 0, deleting the investment
+    if (newTotalAmount == 0 || newTotalQuantity == 0) {
+        await Investment.remove({
+            user_id: req.user._id,
+            crypto_id: req.body.crypto_id
+        })
+    }
+
+    // If investment is not = 0, Updating the investment
+    await Investment.updateOne({
+        user_id: req.user._id,
+        crypto_id: req.body.crypto_id
+    }, {
+        total_amount: newTotalAmount,
+        total_quantity: newTotalQuantity
+    })
+
+    // Adding investment_money + profit in user's funds
+    const user = await User.findOne({_id: req.user._id});
+    await User.updateOne({
+        _id: req.user._id,
+    }, {
+        funds: parseFloat(user.funds) + (parseFloat(req.body.investment) + parseFloat(req.body.return))
+    })
+
+    // Saving the transaction
+    await transaction.save();
+
+    return res.status(200).send({
+        message: "Investment updated"
+    })
 });
 
 

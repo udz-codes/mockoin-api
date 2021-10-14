@@ -16,8 +16,8 @@ const UserSchema = new mongoose.Schema({
         required: true
     },
     funds: {
-        type: Number,
-        default: 30000
+        type: String,
+        default: "30000.00"
     },
     currency: {
         type: String,

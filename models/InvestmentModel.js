@@ -11,7 +11,7 @@ const InvestmentSchema = new mongoose.Schema({
         unique: true
     },
     total_amount: {
-        type: Number,
+        type: String,
         required: true
     },
     total_quantity: {
