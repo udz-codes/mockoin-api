@@ -9,9 +9,14 @@ const AlertSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-
-    // TODO: ADD MORE INFORMATION FOR ALERTS
-
+    current_inr: {
+        type: String,
+        required: true
+    },
+    alert_inr: {
+        type: String,
+        required: true
+    },
     created_at: {
         type: Date,
         default: Date.now

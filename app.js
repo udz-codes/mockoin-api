@@ -9,6 +9,7 @@ const homeRoutes = require('./routes/home');
 const userRoutes = require('./routes/user');
 const transactionRoutes = require('./routes/transactions');
 const InvestmentRoutes = require('./routes/investment');
+const AlertRoutes = require('./routes/alert');
 
 
 // Middlewares
@@ -17,7 +18,8 @@ app.use(express.json());
 app.use('/', homeRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/transactions', transactionRoutes);
-app.use('/api/investments', InvestmentRoutes)
+app.use('/api/investments', InvestmentRoutes);
+app.use('/api/alert', AlertRoutes);
 
 
 // Connect to Database
