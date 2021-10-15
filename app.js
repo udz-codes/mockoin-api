@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 require('dotenv/config');
 // Route imports
 const homeRoutes = require('./routes/home');
-const authRoutes = require('./routes/auth');
+const userRoutes = require('./routes/user');
 const transactionRoutes = require('./routes/transactions');
 const InvestmentRoutes = require('./routes/investment');
 
@@ -15,7 +15,7 @@ const InvestmentRoutes = require('./routes/investment');
 app.use(express.json());
 // Route Middlewares
 app.use('/', homeRoutes);
-app.use('/api/user', authRoutes);
+app.use('/api/user', userRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/investments', InvestmentRoutes)
 

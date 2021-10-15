@@ -1,8 +1,25 @@
 const router = require('express').Router();
+const authenticateUser = require('./verifyToken');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const {registerValidation, loginValidation} = require('../validations.js');
 const User = require('../models/UserModel');
+
+router.get('/', authenticateUser, async (req, res) => {
+    try {
+        const user = await User.findOne({_id: req.user._id})
+        if(user) return res.send({
+            _id: user._id,
+            email: user.email,
+            name: user.name,
+            funds: user.funds,
+            created_at: user.date
+        });
+        else return res.status(400).send({message: "User not found"});
+    } catch (error) {
+        return res.status(400).send({message: "Encountered error while fetching the user"});
+    }
+})
 
 // Routers
 router.post('/register', async (req, res) => {
