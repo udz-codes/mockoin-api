@@ -27,11 +27,17 @@ const loginValidation = (data) => {
         
         email: Joi.string()
             .email()
-            .required(),
+            .required()
+            .messages({
+                'string.email': `Please enter a valid email`,
+            }),
         
         password: Joi.string()
             .min(8)
-            .required(),
+            .required()
+            .messages({
+                'string.min': `Password must be atleast 8 characters`,
+            }),
     })
 
     return schema.validate(data)
