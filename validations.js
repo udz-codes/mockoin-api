@@ -5,15 +5,24 @@ const registerValidation = (data) => {
         
         email: Joi.string()
             .email()
-            .required(),
+            .required()
+            .messages({
+                'string.email': `Please enter a valid email`,
+            }),
     
         name: Joi.string()
             .min(3)
-            .required(),
+            .required()
+            .messages({
+                'string.min': `Name has to be atleast 3 characters`,
+            }),
         
         password: Joi.string()
             .min(8)
-            .required(),
+            .required()
+            .messages({
+                'string.min': `Password has to be atleast 8 characters`,
+            }),
         
         date: Joi.date()
             .default(Date.now),
