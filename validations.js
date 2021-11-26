@@ -58,12 +58,11 @@ const transactionValidation = (data) => {
         action_type: Joi.string()
             .required(),
 
-        inr: Joi.number()
+        inr: Joi.string()
             .required(),
 
         crypto_id: Joi.string()
-            .required()
-            .min(3),
+            .required(),
 
         crypto_value: Joi.string()
             .required(),

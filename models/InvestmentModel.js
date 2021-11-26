@@ -7,8 +7,7 @@ const InvestmentSchema = new mongoose.Schema({
     },
     crypto_id: {
         type: String,
-        required: true,
-        unique: true
+        required: true
     },
     total_amount: {
         type: String,

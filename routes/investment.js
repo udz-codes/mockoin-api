@@ -14,7 +14,7 @@ router.get('/', authenticateUser, async (req, res) => {
         });
         return res.send(investments)
     } catch (error) {
-        return res.send({message: "Encountered an error while fetching investments"})
+        return res.status(400).send({message: "Encountered an error while fetching investments"})
     }
 });
 
