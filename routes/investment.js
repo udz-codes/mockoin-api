@@ -139,8 +139,7 @@ router.post('/sell', authenticateUser, async (req, res) => {
     // {
     //     "crypto_id": "ETH"
     //     "quantity": "0.000028",
-    //     "investment": 100,
-    //     "return": -10
+    //     "amount": 100,
     // }
 
     // Find if user has invested in save crypto before
@@ -153,7 +152,7 @@ router.post('/sell', authenticateUser, async (req, res) => {
         message: "Investment not found"
     })
 
-    if(parseFloat(investment.total_amount) < parseFloat(req.body.investment)) return res.status(400).send({
+    if(parseFloat(investment.total_amount) < parseFloat(req.body.amount)) return res.status(400).send({
         message: "Sale amount is more than invested amount"
     })
 
@@ -164,16 +163,16 @@ router.post('/sell', authenticateUser, async (req, res) => {
     const transaction  = Transaction({
         user_id: req.user._id,
         action_type: "SELL",
-        inr: parseFloat(req.body.investment) + parseFloat(req.body.return),
+        inr: parseFloat(req.body.amount),
         crypto_id: req.body.crypto_id,
         crypto_value: req.body.quantity
     })
 
-    const newTotalAmount = parseFloat(investment.total_amount) - parseFloat(req.body.investment);
+    const newTotalAmount = parseFloat(investment.total_amount) - parseFloat(req.body.amount);
     const newTotalQuantity = parseFloat(investment.total_quantity) - parseFloat(req.body.quantity);
 
     // If investment is 0, deleting the investment
-    if (newTotalAmount == 0 || newTotalQuantity == 0) {
+    if (newTotalAmount <= 0 || newTotalQuantity <= 0) {
         await Investment.remove({
             user_id: req.user._id,
             crypto_id: req.body.crypto_id
@@ -194,7 +193,7 @@ router.post('/sell', authenticateUser, async (req, res) => {
     await User.updateOne({
         _id: req.user._id,
     }, {
-        funds: parseFloat(user.funds) + (parseFloat(req.body.investment) + parseFloat(req.body.return))
+        funds: parseFloat(user.funds) + parseFloat(req.body.amount)
     })
 
     // Saving the transaction
