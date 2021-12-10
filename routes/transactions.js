@@ -14,16 +14,15 @@ router.get('/', authenticateUser, async (req, res) => {
 });
 
 
-// Fetch single transaction of the user
-router.get('/:id', authenticateUser, async (req, res) => {
+// Fetch transactions of specific crypto of the user
+router.get('/:crypto_id', authenticateUser, async (req, res) => {
     try {
-        const transaction = await Transaction.findOne({
+        const transactions = await Transaction.find({
             user_id: req.user,
-            _id: req.params.id
-        });
+            crypto_id: req.params.crypto_id
+        }).sort({created_at: -1});
         
-        if(transaction) res.send(transaction);
-        else res.status(400).send({message: "Transaction not found"})
+        res.send(transactions);
     } catch (error) {
         res.send({message: "Encountered an error while fetching the transaction"})
     }
