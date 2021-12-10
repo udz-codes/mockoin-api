@@ -152,13 +152,13 @@ router.post('/sell', authenticateUser, async (req, res) => {
         message: "Investment not found"
     })
 
-    if(parseFloat(investment.total_amount) < parseFloat(req.body.amount)) return res.status(400).send({
-        message: "Sale amount is more than invested amount"
-    })
+    // if(parseFloat(investment.total_amount) < parseFloat(req.body.amount)) return res.status(400).send({
+    //     message: "Sale amount is more than invested amount"
+    // })
 
-    if(parseFloat(investment.total_quantity) < parseFloat(req.body.quantity)) return res.status(400).send({
-        message: "Cannot sell more currency than investment"
-    })
+    // if(parseFloat(investment.total_quantity) < parseFloat(req.body.quantity)) return res.status(400).send({
+    //     message: "Cannot sell more currency than investment"
+    // })
 
     const transaction  = Transaction({
         user_id: req.user._id,
